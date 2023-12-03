@@ -3,9 +3,8 @@
 :is(h1, h2, h3, h4, h5, h6) {
 	margin: 4.5rem 0 1rem;
 	line-height: 1.1;
-	font-family: var(--accentFont);
-	font-weight: bold;
-	color: var(--darker);
+	font-family: var(--primaryFont);
+	color: var(--dark);
 }
 
 h1 {
@@ -14,11 +13,12 @@ h1 {
 	position: relative;
 	overflow: hidden;
 	padding-bottom: 1rem;
+	font-weight: 800;
 
 	&::after {
 		content: '';
-		height: 0.1em;
-		background: var(--accent);
+		height: 0.16em;
+		background: var(--accent1);
 		width: 100%;
 		margin-left: -100%;
 		position: absolute;
@@ -36,9 +36,24 @@ h1 {
 
 h2 {
 	font-size: 2.0rem;
+	margin: 0 0 3rem;
+	position: relative;
+	overflow: hidden;
+	padding-bottom: 1rem;
+	font-weight: 600;
 	
 	@media (min-width: vars.$smMin) {
 		font-size: 2.2rem;
+	}
+
+	&::after {
+		content: '';
+		height: 0.16em;
+		background: var(--accent2);
+		width: 100%;
+		margin-left: -100%;
+		position: absolute;
+		bottom: 0;
 	}
 }
 
@@ -59,7 +74,7 @@ h6 {
 }
 
 a {
-	color: var(--darker);
+	color: var(--dark);
 	text-decoration-thickness: 1px;
 	text-decoration-color: var(--dark);
 }
@@ -73,6 +88,6 @@ ul {
 	}
 
 	::marker {
-		color: var(--accent);
+		color: var(--dark);
 	}
 }

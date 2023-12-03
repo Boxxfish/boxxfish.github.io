@@ -41,6 +41,8 @@
 	actual contents will show up.
 -->
 <div class="layout" class:open={$isMenuOpen}>
+	<span class="left-edge-number">1</span>
+	<div class="left-edge"/>
 	<Header />
 	{#key data.path}
 		<main

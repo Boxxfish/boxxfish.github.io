@@ -10,8 +10,8 @@
 
 main {
 	width: 100%;
-	max-width: 42rem;
-	margin: 6rem auto;
+	max-width: 60rem;
+	margin: 0 auto 6rem  auto;
 	padding: 0 1rem;
 }
 
@@ -20,6 +20,9 @@ main {
 	grid-template-columns: 100%;
 	grid-template-rows: auto 1fr auto;
 	min-height: 100vh;
+	background-size: 4rem 4rem;
+	background-image: linear-gradient(to right, var(--light-accent) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--light-accent) 1px, transparent 1px);
 }
 
 img {
