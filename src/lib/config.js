@@ -7,7 +7,7 @@
 
 export const siteTitle = 'Ben Giacalone (Boxfish)'
 export const siteDescription = 'Personal site for Ben Giacalone (Boxfish).'
-export const siteURL = 'boxxfish.github.io'
+export const siteURL = 'https://boxxfish.github.io'
 export const siteLink = 'https://github.com/boxxfish/boxxfish.github.io'
 export const siteAuthor = '- Ben Giacalone'
 
