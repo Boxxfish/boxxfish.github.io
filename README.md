@@ -8,14 +8,36 @@ Here are some things I've done, some of which are WIPs. Check them out!
 
 ### Apps and Demos
 
-- [DQN Demo](https://cs.rit.edu/~bsg8294/dqn-demo) - A Deep Q Network demo created for an RIT AI talk.
-- [Visualizing ColBERT Queries](https://cs.rit.edu/~bsg8294/colbert/query_viz.html) - Visualizes ColBERT embeddings and shows what they match to. Created as part of my Master's thesis.
+<div class="app-previews">
+    <div class="app-preview">
+        <img src="/images/dqn_demo.gif" class="app-preview-img"/>
+        <a href="https://cs.rit.edu/~bsg8294/dqn-demo">DQN Demo</a>
+        <p>A Deep Q Network demo created for an RIT AI talk.</p>
+    </div>
+    
+    <div class="app-preview">
+        <img src="/images/colbert_vis.png" class="app-preview-img"/>
+        <a href="https://cs.rit.edu/~bsg8294/colbert/query_viz.html">Visualizing ColBERT Queries</a>
+        <p>Visualizes ColBERT embeddings and shows what they match to.</p>
+        <small>Note: Takes a while to load.</small>
+    </div>
+</div>
 
 ### Mini Research Projects
 
-- [SmashRL](https://github.com/Boxxfish/smash-rl) - Training a neural network to play Super Smash Bros. Melee, with retrieval.
-- [PaintRL](https://github.com/Boxxfish/paint-rl) - Using RL for stroke-based artistic rendering.
-- [Nano](https://github.com/Boxxfish/nano) - Controlling lots of tiny things with neural networks.
+<div class="app-previews">
+    <div class="app-preview">
+        <img src="/images/smash_rl.gif" class="app-preview-img"/>
+        <a href="https://github.com/Boxxfish/smash-rl">SmashRL</a>
+        <p>(WIP) Training a neural network to play Super Smash Bros. Melee with retrieval.</p>
+    </div>
+
+    <div class="app-preview">
+        <img src="/images/paint_rl.gif" class="app-preview-img"/>
+        <a href="https://github.com/Boxxfish/paint-rl">PaintRL</a>
+        <p>(WIP) Using RL for stroke-based artistic rendering.</p>
+    </div>
+</div>
 
 ### Tools and Libraries
 

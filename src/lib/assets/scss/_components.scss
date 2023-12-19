@@ -14,3 +14,20 @@
 		display: none;
 	}
 }
+
+.app-previews {
+	display: flex;
+	flex-direction: row;
+	gap: 4rem;
+}
+
+.app-preview {
+	display: flex;
+	flex-direction: column;
+	width: 20rem;
+}
+
+.app-preview-img {
+	width: 8rem;
+	height: auto;
+}
