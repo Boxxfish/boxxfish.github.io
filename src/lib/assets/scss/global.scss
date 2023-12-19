@@ -6,6 +6,10 @@
 @use './utilities';
 @use './prism';
 
+html {
+	min-height: 100%;
+}
+
 body {
 	margin: 0;
 	min-height: 100vh;

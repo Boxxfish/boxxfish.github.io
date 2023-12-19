@@ -4,22 +4,13 @@
 	margin: 0 0 1rem;
 }
 
-.left-edge-number {
-	position: absolute;
-	margin-left: 10rem;
-
-	@media (max-width: vars.$smMin) {
-		display: none;
-	}
-}
-
 .left-edge {
 	position: fixed;
-	border: dashed 0.26rem var(--dark);
-	height: 100vh;
-	margin-left: 12rem;
+	border: solid 0.26rem var(--dark);
+	min-height: 100vh;
+	margin-left: 10%;
 
-	@media (max-width: vars.$smMin) {
+	@media (max-width: vars.$lgMin) {
 		display: none;
 	}
 }
