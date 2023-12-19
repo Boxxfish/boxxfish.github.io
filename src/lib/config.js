@@ -20,14 +20,8 @@ export const navItems = [
 		title: 'About Me',
 		route: '/',
 	},
-	// {
-	// 	title: 'Blog',
-	// 	route: '/blog'
-	// }, {
-	// 	title: 'About',
-	// 	route: '/about'
-	// }, {
-	// 	title: 'Contact',
-	// 	route: '/contact' 
-	// },
+	{
+		title: 'Contact Me',
+		route: '/contact',
+	},
 ]

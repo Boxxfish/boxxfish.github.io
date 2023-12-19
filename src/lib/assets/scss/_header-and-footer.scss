@@ -29,25 +29,6 @@ footer {
 		overflow: hidden;
 		padding-bottom: 0.3rem;
 		text-decoration: none;
-
-		&::after {
-			content: '';
-			height: 0.1em;
-			background: var(--accent3);
-			width: 100%;
-			margin-left: 18%;
-			position: absolute;
-			bottom: 0.1rem;
-			transition: height 0.1s;
-		}
-
-		&:hover {
-			&::after {
-				content: '';
-				height: 0.3em;
-				transition: height 0.1s;
-			}
-		}
 	}
 
 	svg {
@@ -100,7 +81,26 @@ header {
 			display: block;
 			width: 100%;
 			text-align: center;
-			margin-bottom: calc(0.2rem + 2vh);
+			padding-bottom: 0.3rem;
+			overflow: hidden;
+			position: relative;
+
+			&::after {
+				content: '';
+				height: 0.1em;
+				background: var(--accent3);
+				width: 100%;
+				position: absolute;
+				bottom: 0.1rem;
+				transition: height 0.1s;
+				margin-left: -100%;
+			}
+
+			&:hover {
+				&::after {
+					height: 0.3em;
+				}
+			}
 		}
 
 		opacity: 1;
