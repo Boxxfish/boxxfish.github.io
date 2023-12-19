@@ -28,4 +28,8 @@ export const navItems = [
 		title: 'Resume',
 		route: '/resume',
 	},
+	{
+		title: 'Github',
+		route: 'https://github.com/boxxfish',
+	},
 ]
