@@ -24,4 +24,8 @@ export const navItems = [
 		title: 'Contact Me',
 		route: '/contact',
 	},
+	{
+		title: 'Resume',
+		route: '/resume',
+	},
 ]
