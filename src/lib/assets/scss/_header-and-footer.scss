@@ -3,7 +3,11 @@
 header,
 footer {
 	font-family: var(--primaryFont);
-	padding: 2.5rem 2rem;
+	padding: 2.5rem 4rem;
+
+	@media (min-width: vars.$smMin) {
+		padding: 2.5rem 8rem;
+	}
 
 	a {
 		text-decoration: none;
