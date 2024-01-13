@@ -62,6 +62,9 @@ Combined Bachelors/Masters of Computer Science, Expected May 2024
 **DTrack**	
 - Created Vue-inspired reactive UI library for Godot using GDScript.
 
+### Papers
+- Beneath the [MASK]: An Analysis of Structural Query Tokens in ColBERT -- ECIR 2024
+
 ## Organizations
 **Multidisciplinary Robotics:** Pacbot Team -- (Aug 2019 - Now)
 
