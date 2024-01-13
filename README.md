@@ -39,6 +39,9 @@ Here are some things I've done, some of which are WIPs. Check them out!
     </div>
 </div>
 
+### Papers
+- Beneath the [MASK]: An Analysis of Structural Query Tokens in ColBERT ([PDF](./papers/colbert_mask_paper.pdf))
+
 ### Tools and Libraries
 
 - [RL Template](https://github.com/Boxxfish/rl-template) - A standard template I use for RL projects.
