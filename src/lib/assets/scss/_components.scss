@@ -38,4 +38,18 @@
 	border: solid 0.2rem var(--dark);
 	display: block;
 	margin: auto;
+
+	&-md {
+		width: 30rem;
+		border: solid 0.2rem var(--dark);
+		display: block;
+		margin: auto;
+	}
+
+	&-lg {
+		width: 50rem;
+		border: solid 0.2rem var(--dark);
+		display: block;
+		margin: auto;
+	}
 }
