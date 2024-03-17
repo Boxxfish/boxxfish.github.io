@@ -1,7 +1,7 @@
 ---
 title: "How Baleen Works"
-date: "2024-03-02"
-updated: "2024-03-02"
+date: "2024-03-16"
+updated: "2024-03-16"
 categories: 
   - "papers"
   - "question-answering"

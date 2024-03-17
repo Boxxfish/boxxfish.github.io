@@ -14,12 +14,18 @@ Here are some things I've done, some of which are WIPs. Check them out!
         <a href="https://cs.rit.edu/~bsg8294/dqn-demo">DQN Demo</a>
         <p>A Deep Q Network demo created for an RIT AI talk.</p>
     </div>
-    
+
     <div class="app-preview">
         <img src="/images/colbert_vis.png" class="app-preview-img"/>
         <a href="/colbert-vis/index.html">Visualizing ColBERT Queries</a>
         <p>Visualizes ColBERT embeddings and shows what they match to.</p>
         <small>Note: Takes a while to load.</small>
+    </div>
+
+    <div class="app-preview">
+        <img src="/images/baleen_vis.png" class="app-preview-img"/>
+        <a href="/baleen-vis/0.html">Baleen Visualizer</a>
+        <p>Visualizes the outputs of each Baleen stage.</p>
     </div>
 </div>
 
