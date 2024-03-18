@@ -47,7 +47,9 @@ Here are some things I've done, some of which are WIPs. Check them out!
 
 ### Papers
 **Beneath the [MASK]: An Analysis of Structural Query Tokens in ColBERT**
+
 *B. Giacalone, G. Paiement, Q. Tucker, and R. Zanibbi*
+
 **ECIR 2024** | ([PDF](./papers/colbert_mask_paper.pdf))
 
 ### Tools and Libraries
