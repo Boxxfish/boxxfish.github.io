@@ -47,6 +47,11 @@ Combined Bachelors/Masters of Computer Science, Expected May 2024
 - Developed an online art gallery and storefront platform with Python, HTML/Javascript, Flask, and Stripe.
 - Created Python, SQL, and Selenium based automation tools.
 
+## Papers
+**Beneath the [MASK]: An Analysis of Structural Query Tokens in ColBERT**
+
+B. Giacalone, G. Paiement, Q. Tucker, and R. Zanibbi -- **ECIR 2024**
+
 ## Projects
 **RL Template**
 - Wrote implementations of state of the art deep reinforcement learning algorithms.
@@ -61,9 +66,6 @@ Combined Bachelors/Masters of Computer Science, Expected May 2024
 
 **DTrack**	
 - Created Vue-inspired reactive UI library for Godot using GDScript.
-
-## Papers
-- Beneath the [MASK]: An Analysis of Structural Query Tokens in ColBERT -- ECIR 2024
 
 ## Organizations
 **Multidisciplinary Robotics:** Pacbot Team -- (Aug 2019 - Now)
