@@ -1,0 +1,1 @@
+const t="Ben Giacalone (Boxfish)",e="Personal site for Ben Giacalone (Boxfish).",o="- Ben Giacalone",s=10,i=[{title:"About Me",route:"/"},{title:"Posts",route:"/blog"},{title:"Contact Me",route:"/contact"},{title:"Resume",route:"/resume"},{title:"Github",route:"https://github.com/boxxfish"}];export{t as a,e as b,i as n,s as p,o as s};
