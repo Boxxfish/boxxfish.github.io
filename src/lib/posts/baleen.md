@@ -12,8 +12,8 @@ coverHeight: 8
 excerpt: A walkthough of Baleen, a late interaction-based multi-hop question answering system.
 ---
 
-As part of my Master's thesis, I've been taking a look at Baleen, a multi-hop question answering (MHQA) system. The
-system builds on Khattab et. al's previous work on late interaction based retrieval, most famously ColBERT. While it's
+As part of my Master's thesis, I've been taking a look at [Baleen](https://arxiv.org/abs/2101.00436v3), a multi-hop question answering (MHQA) system. The
+system builds on Khattab et. al's previous work on late interaction based retrieval, most famously [ColBERT](https://arxiv.org/abs/2004.12832). While it's
 been cited in a number of blog posts, I haven't found many resources actually going through how it works. In this
 blogpost, we'll go through what Baleen is, how each component works, and how it's trained.
 
