@@ -15,15 +15,19 @@ const config = {
 			scss: {
 				// Ensures Sass variables are always available inside component <style> blocks as vars.$variableDefinedInFile
 				prependData: `@use 'src/lib/assets/scss/vars';`
-			},
+			}
 		}),
 		mdsvex({
 			// The default mdsvex extension is .svx; this overrides that.
 			extensions: ['.md'],
 
 			// Adds IDs to headings, and anchor links to those IDs. Note: must stay in this order to work.
-			rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings, rehypeKatexSvelte],
-			remarkPlugins: [remarkMath],
+			rehypePlugins: [
+				rehypeSlug,
+				rehypeAutolinkHeadings,
+				rehypeKatexSvelte,
+			],
+			remarkPlugins: [remarkMath]
 		})
 	],
 	kit: {
