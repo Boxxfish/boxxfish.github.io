@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="google-site-verification" content="Nm9emvAqwqPmF6ruxNroH1NrGRbYrVrWpRy48ENbYEQ" />
+		
+		
+		<link href="../_app/immutable/assets/0.10358d9e.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.29b3eeb7.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.d68af908.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/singletons.9e8fef39.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/control.f5b05b5f.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.80cd2071.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper.a4192956.js">
+		<link rel="modulepreload" href="../_app/immutable/nodes/0.ea9787a2.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.93323930.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/config.42d4e905.js">
+		<link rel="modulepreload" href="../_app/immutable/nodes/5.9a43b36b.js"><title>Playing Smash Bros. with Neural Networks</title><!-- HEAD_svelte-5bmyd7_START --><meta data-key="description" name="description" content="Automating the fun part of video games."><meta property="og:type" content="article"><meta property="og:title" content="Playing Smash Bros. with Neural Networks"><meta name="twitter:title" content="Playing Smash Bros. with Neural Networks"><meta property="og:description" content="Automating the fun part of video games."><meta name="twitter:description" content="Automating the fun part of video games."><meta property="og:image" content="/images/blog/smash_rl_1.gif"><meta property="og:image:width" content="16"><meta property="og:image:height" content="9"><meta name="twitter:image" content="/images/blog/smash_rl_1.gif"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"><!-- HEAD_svelte-5bmyd7_END -->
+		<!-- You can replace this block to update the Google fonts used in the project -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet"> 
+		<!-- End Google Fonts block -->
+
+		<!-- You can add global <meta> tags here, but anything not global or dynamic should be a `<svelte:head>` tag on the proper page(s) instead. -->
+	</head>
+	<body>
+		<div id="svelte">
+
+
+
+
+
+
+<div class="layout"><header>
+<nav class="main-nav"><ul><li><a href="/" aria-current="false">About Me
+		</a></li><li><a href="/blog" aria-current="false">Posts
+		</a></li><li><a href="/contact" aria-current="false">Contact Me
+		</a></li><li><a href="/resume" aria-current="false">Resume
+		</a></li><li><a href="https://github.com/boxxfish" aria-current="false">Github
+		</a></li></ul></nav></header>
+	
+	<main id="main" tabindex="-1">
+
+
+
+
+<article class="post">
+	<img class="cover-image" src="/images/blog/smash_rl_1.gif" alt="" style="aspect-ratio: 16 / 9;" width="16" height="9">
+
+	<h1>Playing Smash Bros. with Neural Networks</h1>
+
+	<div class="meta"><b>Published:</b>
+		2024-02-11
+		<br>
+		<b>Updated:</b>
+		2024-02-11</div>
+
+	<p>One of the coolest applications of machine learning to me is using it to learn to play video games. It’s what got me interested in reinforcement learning in the first place. There’s nothing quite like watching an algorithm slowly go from pressing random buttons, to having almost complete mastery of a game, to the point where it sometimes it’ll do things that surprise even you.</p>
+<p>I’ve been spending some time on the side trying to train an agent to play Smash Bros. In this post, I’ll share what my approach was, and also highlight some of the prior work that’s been done here.</p>
+<h2 id="but-why-smash"><a aria-hidden="true" tabindex="-1" href="#but-why-smash"><span class="icon icon-link"></span></a>But Why Smash?</h2>
+
+<p>For the uninitiated, Super Smash Bros. is a fighting game series where two players attempt to knock each other off of a shared platform. Each character is equipped with a variety of moves to inflict damage (measured as a percentage from 0% to 999%) and send the opponent flying. The more damage a fighter, the harder they fly back.</p>
+<p>Its large roster of iconic video game characters (where else can you watch Mario beat up Pacman?), alongside its easy to learn yet difficult to master gameplay, has made it one of Nintendo’s bestsellers. The latest game contains 82 different characters, all with their own moveset and properties.</p>
+<p>For instance, Pikachu is a small, nimble fighter who has a variety of fast attacks, but can be easily launched from the stage even at low percentages due to its light body weight. Donkey Kong, on the other hand, is a powerful, heavy fighter with good horizontal recovery, but has a large hitbox and struggles to recover vertically.</p>
+<img src="/images/blog/smash-rl-1/dk_vs_pikachu.png" alt="dk vs pikachu" class="post-img">
+<p>Despite each fighter’s unique qualities, they all obey a common set of rules.</p>
+<p>All characters have a set of standard attacks that can be executed on the ground (ground attacks) and in the air (aerial attacks) by pressing the “A” button and holding down a direction. If a direction is pressed at the same time the “A” button is pressed, the player can charge up a “smash” attack that deals heavy damage and sends the opponent flying. Each fighter is also equipped with four special moves that can be used by pressing the “B” button and a direction.</p>
+<p>For defense, holding down the shield button causes a protective shield to appear around the character, which shrinks with more hits and time. While standard and special attacks can’t penetrate through the shield, this leaves the character open to being grabbed.</p>
+<p>Aside from being fun to play, it’s also an interesting problem for AI! An agent capable of beating top players can’t just master the basic rules of the game, but also know how every character should fight against every other character. In one match up, the best strategy might be to keep the opponent away by shooting at them, then running away when they get too close. In another, it might be best to get up close and unleash a flurry of attacks, forcing the other player to make mistakes.</p>
+<p>To best make these decisions, the agent has to take a lot of variables into account: the positions of each player, which state each fighter is in (shielding? recovering? charging up a smash attack?), unique characteristics of the fighter (weight, jump height), how damaged they are, etc.
+Even if an agent <em>did</em> get really good at all of this, it’d still have to master the psychological aspect of the game, trying to get inside its opponent’s head while avoiding the same from happening to it.</p>
+<p>While there are 5 games in the Smash series, we’ll be focusing on Super Smash Bros. Melee, the game with the most active competitive scene.
+Because it’s so widely played, the community has made it really easy to get it up and running on a PC, which makes training <em>way</em> easier.</p>
+<h2 id="prior-work"><a aria-hidden="true" tabindex="-1" href="#prior-work"><span class="icon icon-link"></span></a>Prior Work</h2>
+<p>A couple people have already experimented with using deep learning to train an agent to play Melee.
+Here’s a selection of work I was able to dig up:</p>
+<ul><li><strong>“Beating the World’s Best at Super Smash Bros. Melee with Deep Reinforcement Learning” (2017)</strong>, a paper by Vlad Firoiu, William F. Whitney, and Josh Tenenbaum,</li>
+<li><strong>“Learning to Play Super Smash Bros. Melee with Delayed Actions” (2017)</strong>, a paper by Yash Sharma and Eli Friedman,</li>
+<li><strong>“At Human Speed: Deep Reinforcement Learning with Action Delay” (2018)</strong>, a paper by Vlad Firoiu, Tina Ju, and Josh Tenenbaum,</li>
+<li><strong>“Project Nabla” (2022)</strong>, a blog post by Brian Chen, and</li>
+<li><strong>“AI Learns to Play Super Smash Bros” (2022)</strong>, a video by the Youtuber AI Spawn.</li></ul>
+<p>I’ve broken these down by technique below.
+I’ll be giving <em>super</em> oversimplified explanations of how each reinforcement learning algorithm works; if you want to learn more, <a href="https://huggingface.co/learn/deep-rl-course/unit0/introduction" rel="nofollow">this</a> is one of the most intuitive sources I’ve found for beginners.</p>
+<h3 id="behavior-cloning"><a aria-hidden="true" tabindex="-1" href="#behavior-cloning"><span class="icon icon-link"></span></a>Behavior Cloning</h3>
+<p>At the most basic, we have behavior cloning. These approaches take recordings of real players and train a network to replicate them.</p>
+<p>The dataset will typically contain the state of the game as input, and a one hot encoded vector corresponding to the correct action as the output.
+Once the network’s trained, you pass data from the game to the network, and take the maximum value of the network.</p>
+<ul><li>Project Nabla pretrains a network with scalar features to output one hot encoded actions. The network uses a recurrent GRU layers to take past frames into account.</li>
+<li>The AI Spawn video used a collection of publically available replays and trained an MLP on it.</li></ul>
+<h4 id="pros"><a aria-hidden="true" tabindex="-1" href="#pros"><span class="icon icon-link"></span></a>Pros:</h4>
+<ul><li>Easy to understand and implement.</li></ul>
+<h4 id="cons"><a aria-hidden="true" tabindex="-1" href="#cons"><span class="icon icon-link"></span></a>Cons:</h4>
+<ul><li>Doesn’t generalize well to unseen game states.</li>
+<li>You need an expert to record a bunch of games for you.</li></ul>
+<h3 id="deep-q-networks-dqns"><a aria-hidden="true" tabindex="-1" href="#deep-q-networks-dqns"><span class="icon icon-link"></span></a>Deep Q Networks (DQNs)</h3>
+<p>Next, we have Deep Q Networks.
+This is the first algorithm where the AI learns by actually playing the game.
+Because there no longer is a “right answer” for each game state, we have to define a reward function for the game, like +1 if you knock the other player off, and -1 if you get knocked off instead.
+With Deep Q Networks, you train a network to associate each state with the reward it <em>thinks</em> it’ll get in the next state, and so on.
+Eventually, you get to a point where you can accurately predict how much reward you’ll get at any given game state, which means like with behavior cloning, you can just choose the action that outputs the max value.</p>
+<ul><li>Firouiu (2017) trained DQNs both against the in-game AI and through self play, finding that Q networks could easily exploit edge cases in the opponent. They used an MLP where each player’s position, velocity, action state, etc were passed.</li>
+<li>Sharma trained a DQN with a recurrent architecture against the in-game AI to allow it to use information seen in previous frames.</li>
+<li>AI Spawn trained a DQN against the in-game AI, also finding that Q networks tend to take advantage of bugs in the in-game AI.</li></ul>
+<h4 id="pros-1"><a aria-hidden="true" tabindex="-1" href="#pros-1"><span class="icon icon-link"></span></a>Pros:</h4>
+<ul><li>The simulation doesn’t have to be super fast, since you’re allowed to use all data collected since the start of training.</li>
+<li>You basically have infinite data because the agent plays more games during training.</li></ul>
+<h4 id="cons-1"><a aria-hidden="true" tabindex="-1" href="#cons-1"><span class="icon icon-link"></span></a>Cons:</h4>
+<ul><li>It can lead to unnatural behavior, because it’s trying to find the objectively best way to play the game, like a speedrunner.</li></ul>
+<h3 id="policy-gradient-algorithms"><a aria-hidden="true" tabindex="-1" href="#policy-gradient-algorithms"><span class="icon icon-link"></span></a>Policy Gradient Algorithms</h3>
+<p>Finally, we have policy gradient algorithms.
+Like DQNs, these algorithms learn to play video games by playing them over and over again.
+Unlike DQNs, instead of trying to predict the value of each action, the model assigns them probabilties.
+Initially, you start out with pretty much the same probability of performing any action, but as the model plays the game, it increases the probability of performing highly rewarding actions while doing the opposite for actions that lead to low reward.</p>
+<ul><li>Firouiu (2017) compared an Actor Critic approach against their DQN and found that it tended to perform more realistic behaviors, attacking and evading.</li>
+<li>Firouiu (2018) used a recurrent neural network to predict the next frame to deal with input delay.</li>
+<li>Project Nabla uses a more efficient Actor Critic variant (PPO) to finetune the model after doing behavior cloning.</li></ul>
+<h4 id="pros-2"><a aria-hidden="true" tabindex="-1" href="#pros-2"><span class="icon icon-link"></span></a>Pros:</h4>
+<ul><li>Like with DQNs, you have basically unlimited data to train on.</li>
+<li>They tend to give you more “realistic” behavior.</li>
+<li>Generally, I’ve gotten better results with policy gradient algorithms over DQNs.</li></ul>
+<h4 id="cons-2"><a aria-hidden="true" tabindex="-1" href="#cons-2"><span class="icon icon-link"></span></a>Cons:</h4>
+<ul><li>You need a really fast environment, since you have to throw out all of your old experience after one iteration of training.</li></ul>
+<h2 id="my-approach"><a aria-hidden="true" tabindex="-1" href="#my-approach"><span class="icon icon-link"></span></a>My Approach</h2>
+<p>I decided to go with PPO, which is a pretty standard policy gradient algorithm.
+It looked like DQNs tended to exploit edge cases in the opponent too much during training, making the behavior less realistic.</p>
+<p>For my feature space, I decided to go with a combination of scalar <em>and</em> visual features.
+As we’ve seen with the other papers, scalar features alone are actually pretty informative, and they allow you to get away with less intensive architectures.
+My rationale was that giving the agent visual features is more “natural”, since it wouldn’t have to memorize things like how close another player has to be for an attack to hit.
+I didn’t want to turn this into a computer vision task, though, so instead of pixels, I just displayed the hitboxes and hurtboxes.</p>
+<p>Because I didn’t want to iterate on an expensive environment, I wrote a fast, simple, Smash-like fighting game in Bevy.
+In the game, you can move left and right, and you also get a jump.
+There are four kinds of attacks:</p>
+<ol><li>A fast, light attack, similar to Smash’s jab attacks,</li>
+<li>A slow, heavy attack, similar to Smash’s smash attacks,</li>
+<li>A projectile with a fair bit of startup, and</li>
+<li>A grab attack that ignores shields.</li></ol>
+<p>Speaking of shielding, that’s also something you can do.</p>
+<p>Aside from being <em>much</em> faster to run than simulating a Gamecube, being such a simple environment means it’s easier to spot and debug strange behavior.
+For instance, agents turning away from each other and firing projectiles off stage could indicate that I accidentally switched their positions.</p>
+<p>I also wanted agents to generalize to high level play, so instead of having agents play against the in-game AI, I used self play.
+I used <a href="https://huggingface.co/learn/deep-rl-course/unit7/self-play?fw=pt" rel="nofollow">the same technique shown in Huggingface’s RL course</a>.
+At any given time, I had one active agent that was learning to play against a stable of opponents.
+The pool of opponents initially consists of a copy of the agent from before training starts, and every couple hundred of steps, I copy the active agent to the pool.
+Aside from the network, each opponent also keeps track of its current ELO, which corresponds to its performance compared to every other agent.</p>
+<p>To update ELO scores, I set up evaluation runs to periodically run during training.
+Once I hit a threshold of opponents, I use ELO to figure out which agent to replace, removing the worst performing agents over time.
+Thus, as the training process continues, I’d end up with a better and better set of opponents for my active agent to fight against.
+This reduces the chance of the agent overfitting against one type of strategy.</p>
+<p>I should note now that I was running all of this on my laptop, which struggles to play Cyberpunk 2077 on medium settings.
+With all these moving parts, training got pretty slow.
+To speeed things up, I ported over a lot of the hot code to Rust.
+While running things in a compiled language immediately sped up the code a bit, the major speedup came from the ability to use all the cores on my machine.
+Python’s GIL means writing multithreaded code isn’t easy, but with Rust, I could just spin up as many threads as I needed, while still being able to read from shared memory.</p>
+<p>With a couple nights of training, my agents were looking pretty good! They strategically shot projectiles from far away, then inched closer to the opponent to finish them off with a heavy attack.</p>
+<img src="/images/smash_rl.gif" alt="smash rl" class="post-img">
+<p>Once I was confident that everything was working, I set up training with <a href="https://github.com/altf4/libmelee" rel="nofollow">libmelee</a>.
+After training a couple nights, the agents generally seemed to understand that they were supposed to attack each other, and also that they shouldn’t jump off the stage.</p>
+<img src="/images/blog/smash_rl_1.gif" alt="melee playing" class="post-img">
+<h2 id="conclusion"><a aria-hidden="true" tabindex="-1" href="#conclusion"><span class="icon icon-link"></span></a>Conclusion</h2>
+<p>I’m pretty happy with what I have for now! The agents seem to know what they’re doing, and translating to a real environment feels relatively straightforward, even if it is slow.
+If I let this train longer, I’d probably have an agent that could consistently beat me, <del>although to be fair this isn’t hard to do</del>.</p>
+<p>With that said, I’m switching gears on this project.
+The real goal of this project has actually been to integrate <em>retrieval</em> into the process, giving agents the ability to use a giant dataset of experiences at during gameplay.
+This would reduce the need to memorize combos and strategies.</p>
+<p>I’ll make a follow up post that details the state of that effort.
+In the meantime, you can see the current state of my code here: <a href="https://github.com/Boxxfish/smash-rl" rel="nofollow">https://github.com/Boxxfish/smash-rl</a></p>
+
+	<aside class="post-footer"><h2>Posted in:</h2>
+			<ul><li><a href="/blog/category/projects/">projects</a>
+					</li><li><a href="/blog/category/reinforcement-learning/">reinforcement-learning</a>
+					</li><li><a href="/blog/category/smash-bros/">smash-bros</a>
+					</li></ul></aside></article></main>
+	<footer><p>Created with <a href="https://github.com/josh-collinsworth/sveltekit-blog-starter">sveltekit-blog-starter.</a></p>
+	<p>©2024 - Ben Giacalone</p></footer></div>
+
+
+			
+			<script>
+				{
+					__sveltekit_fqrqe3 = {
+						base: new URL("..", location).pathname.slice(0, -1),
+						env: {}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					const data = [null,null];
+
+					Promise.all([
+						import("../_app/immutable/entry/start.29b3eeb7.js"),
+						import("../_app/immutable/entry/app.80cd2071.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 5],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>

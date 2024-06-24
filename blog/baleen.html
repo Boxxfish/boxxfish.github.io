@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="google-site-verification" content="Nm9emvAqwqPmF6ruxNroH1NrGRbYrVrWpRy48ENbYEQ" />
+		
+		
+		<link href="../_app/immutable/assets/0.10358d9e.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.29b3eeb7.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.d68af908.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/singletons.9e8fef39.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/control.f5b05b5f.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.80cd2071.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/preload-helper.a4192956.js">
+		<link rel="modulepreload" href="../_app/immutable/nodes/0.ea9787a2.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.93323930.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/config.42d4e905.js">
+		<link rel="modulepreload" href="../_app/immutable/nodes/5.9a43b36b.js"><title>How Baleen Works</title><!-- HEAD_svelte-5bmyd7_START --><meta data-key="description" name="description" content="A walkthough of Baleen, a late interaction-based multi-hop question answering system."><meta property="og:type" content="article"><meta property="og:title" content="How Baleen Works"><meta name="twitter:title" content="How Baleen Works"><meta property="og:description" content="A walkthough of Baleen, a late interaction-based multi-hop question answering system."><meta name="twitter:description" content="A walkthough of Baleen, a late interaction-based multi-hop question answering system."><meta property="og:image" content="/images/blog/baleen_cover.png"><meta property="og:image:width" content="10"><meta property="og:image:height" content="8"><meta name="twitter:image" content="/images/blog/baleen_cover.png"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"><!-- HEAD_svelte-5bmyd7_END -->
+		<!-- You can replace this block to update the Google fonts used in the project -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet"> 
+		<!-- End Google Fonts block -->
+
+		<!-- You can add global <meta> tags here, but anything not global or dynamic should be a `<svelte:head>` tag on the proper page(s) instead. -->
+	</head>
+	<body>
+		<div id="svelte">
+
+
+
+
+
+
+<div class="layout"><header>
+<nav class="main-nav"><ul><li><a href="/" aria-current="false">About Me
+		</a></li><li><a href="/blog" aria-current="false">Posts
+		</a></li><li><a href="/contact" aria-current="false">Contact Me
+		</a></li><li><a href="/resume" aria-current="false">Resume
+		</a></li><li><a href="https://github.com/boxxfish" aria-current="false">Github
+		</a></li></ul></nav></header>
+	
+	<main id="main" tabindex="-1">
+
+
+
+
+<article class="post">
+	<img class="cover-image" src="/images/blog/baleen_cover.png" alt="" style="aspect-ratio: 10 / 8;" width="10" height="8">
+
+	<h1>How Baleen Works</h1>
+
+	<div class="meta"><b>Published:</b>
+		2024-03-16
+		<br>
+		<b>Updated:</b>
+		2024-03-16</div>
+
+	<p>As part of my Master’s thesis, I’ve been taking a look at <a href="https://arxiv.org/abs/2101.00436v3" rel="nofollow">Baleen</a>, a multi-hop question answering (MHQA) system. The
+system builds on Khattab et. al’s previous work on late interaction based retrieval, most famously <a href="https://arxiv.org/abs/2004.12832" rel="nofollow">ColBERT</a>. While it’s
+been cited in a number of blog posts, I haven’t found many resources actually going through how it works. In this
+blogpost, we’ll go through what Baleen is, how each component works, and how it’s trained.</p>
+<p>I’ve also written a visualizer for Baleen <a href="https://boxxfish.github.io/baleen-vis/0.html" rel="nofollow">here</a>, where you can see how
+different queries are handled!</p>
+
+<h2 id="task"><a aria-hidden="true" tabindex="-1" href="#task"><span class="icon icon-link"></span></a>Task</h2>
+<p>The general family of tasks Baleen targets is <em>multi-hop open domain</em> reasoning. Open domain tasks require using a
+collection of documents to form a response. In other words, you can’t just have a language models “memorize” facts from
+a bunch of documents and ask it questions; the system has to act like it’s taking an open book test and retrieve pages
+needed to answer questions.</p>
+<p>Multi-hop reasoning requires fetching information from a bunch of documents instead of just a single source. For
+example, let’s say you have the query “Was George Washington’s successor elected twice?“. The system would first have to
+look up information on George Washington to figure out who his successor was (John Adams), then look up information
+about John Adams see if they were elected twice.</p>
+<p>The actual form of the answer is flexible; it could be the answer to a multiple choice question, a span of text from one
+of the retrieved documents, or just true/false.</p>
+
+<p>The specific tasks Baleen addresses are question answering and claim verificiation. For question answering, the system
+retrieves a set of documents that allow it to answer a question. For claim verification, the system retrieves a set of
+documents that either prove or disprove a given claim, basically doing fact checking. The two datasets used are HotpotQA
+and HoVer, respectively. The authors primarily focus the latter, since they find that HotpotQA is too “easy” of a task
+— HotpotQA only requires at most 2 hops to answer a question, while HoVer requres 2-4.</p>
+<p>Since we want our fact checking systems to be trustworthy and transparent, the quality of retrieved documents is very
+important. In fact, when evaluating a system on HoVer, whether or not the system produces correct answers is actually a
+secondary concern, at least when compared to how good the retrieved evidence is.</p>
+<p>Each item in the dataset contains an unordered set of gold <code>(passage, sentence)</code> pairs, which model facts from passages.
+Exact Match (EM) and F1 (a combination of precision and recall) are measured between the retrieved set and gold set of
+facts. Obtaining a good passage EM and F1 (where the actual fact could be anywhere within a passage) is less challenging
+than doing it at the sentence level. HoVer uses the Wikipedia 2017 Abstracts dataset, so each “passage” has around 1-4
+sentences.</p>
+
+<h2 id="the-system"><a aria-hidden="true" tabindex="-1" href="#the-system"><span class="icon icon-link"></span></a>The System</h2>
+<p>Now that we understand what Baleen does, we’ll cover each of its components.</p>
+<p>On each hop, the current query is run through a <strong>retriever</strong> to produce a set of candidate documents. Documents are
+then run through a 2-stage <strong>condenser</strong> to isolate the most relevant facts (e.g. sentences). These facts are added to
+the end of the query to form the next context, then the system performs the next hop. After a set number of hops, the
+query and context are sent to a <strong>reader</strong>, which determines whether or not the query is supported based on the provided
+context.</p>
+
+<img src="/images/blog/baleen_cover.png" alt="baleen system diagram" class="post-img-lg">
+<p>All components are implemented with Transformer-based language models.</p>
+<h3 id="retriever"><a aria-hidden="true" tabindex="-1" href="#retriever"><span class="icon icon-link"></span></a>Retriever</h3>
+<p>The retriever is very similar to ColBERT.</p>
+<p>As a review, ColBERT is a neural retrieval model that contextualizes queries and documents, such that every query and
+document token ends up being used for scoring. The score of a document is computed as the sum of the most similar
+document embedding to each query embedding. ColBERT pads its queries with <code>[MASK]</code> tokens and includes this in the
+scoring, so every query has the same number of query tokens. By default, 32 query tokens are used.</p>
+
+<p>In the figure below, the cosine similarity between each query and document token has been computed. All scores indicated
+in green are the <em>maximum</em> similarity score for each query token against the document, and they are all summed together
+to produce the final document score.</p>
+<img src="/images/blog/baleen/colbert_scoring.png" alt="colbert late interaction" class="post-img-md">
+<p>Baleen uses FLIPR, which stands for <em>Focused Late Interaction</em> Passage Retriever. Unlike ColBERT, FLIPR uses only the
+top-k highest scoring query tokens per document for scoring.</p>
+<p>To see why this is helpful, consider the claim “The Statue of Liberty and the Eiffel Tower are located in the same
+country”. To verify this claim, Baleen would have to retrieve the Statue of Liberty and Eiffel Tower articles. Because
+ColBERT uses every query token, using standard ColBERT late interaction would likely retrieve the article for Gustav
+Eiffel, who contributed to both projects. By only using the highest scoring subset, several “sub-queries” can be
+generated from a single query.</p>
+
+<p>In the figure below, we score a query against two different documents, using a <code>k</code> of 3. After finding the maximum
+cosine similarity for each query token, only the top 3 tokens are used to compute the document’s score, indicated with a
+green box. This allows both the article for the Eiffel Tower and Statue of Liberty to fulfill the provided query.</p>
+<img src="/images/blog/baleen/flipr_scoring.png" alt="flipr late interaction" class="post-img-lg">
+<p>FLIPR computes the score contribution of the query separately from the contribution of the context. By default, 32 tokens
+from the query are used (half of the 64 tokens that form the query and padding), while only 8 tokens from the context
+are used.</p>
+
+<p>To train FLIPR, the authors use <em>latent hop ordering</em>. Recall that HoVer gives us an <em>unordered set</em> of gold
+passage/sentence pairs. Some of these passage, however, can’t be retrieved based on information in the query alone. For
+example, in our “George Washington successor” example from before, the model wouldn’t be able to retrieve the article
+for “John Adams” before retrieving the article for “George Washington”, since it doesn’t know that John Adams succeeded
+George Washington yet. Since we modify the query, we also don’t actually know what queries will look like after the
+first hop. A big part of the challenge is to figure out not just <em>which</em> documents to retrieve, but <em>when</em> they should
+be retrieved.</p>
+
+<p>Latent hop ordering extends the idea of <em>weak supervison</em> used in ColBERT-QA, the authors’ previous single-hop
+open domain question answering system. Generally speaking, weak interaction is a technique for labeling unlabled data
+using heuristics. This heuristic can take many forms, from using simple features that exploit biases in the data (such
+as using anchor text), to using existing models to estimate relevance.</p>
+<p>In the single-hop task used in ColBERT-QA, gold passages are not provided, but a short answer string is, allowing for a
+retrieval heuristic based on BM25. During the first round of training, the authors use this BM25 heuristic to create
+positives and negatives, then train a ColBERT model based on these triples. The next two rounds of training then use the
+ColBERT model trained in the previous round. Effectively, after each round, you’re left with a model that can better
+determine passage relevance.</p>
+
+
+<p>This brings us to the multi-hop setting. For the first hop, we use a ColBERT-QA model as our heuristic. Given the query,
+this retriever will want to retrieve certain gold passages before others. The highest ranked retrieved gold passages are
+treated as positives, while the non-gold passages are treated as negatives. We also produce a set of first-hop queries
+by adding gold fact sentences present in our first-hop gold passages to queries.</p>
+<p>For the second hop, we finetune a standard ColBERT model trained on MS MARCO with the positives and negatives for the
+first hop, aand all remaining gold passages for the second hop, to produce a second-hop retriever. We can now use our
+second-hop retriever to produce positives and negatives with the same procedure we used for our first hop. This process
+continues until we have a set of positives and negatives for each hop we want to peform (usually 4), allowing us to
+train a model that works with every hop.</p>
+
+<h3 id="condenser"><a aria-hidden="true" tabindex="-1" href="#condenser"><span class="icon icon-link"></span></a>Condenser</h3>
+<p>After retrieving our initial set of documents, we have to figure out which facts are relevant. In order to scale to as
+many hops as possible, we want to retain the smallest number of facts that still allows us to answer the query. The
+condenser consists of two ELECTRA-based models, one which looks at whole passages to identify relevant facts, and
+another that looks at all relevant facts at once to perform even more filtering.</p>
+
+<h4 id="stage-1"><a aria-hidden="true" tabindex="-1" href="#stage-1"><span class="icon icon-link"></span></a>Stage 1</h4>
+<p>The stage 1 condenser looks at entire passages at once. Each sentence in the passage has a special token placed at the
+beginning (a [MASK] token, to be more precise). After passages are contextualized, the special tokens are run through a
+linear layer to produce relevance scores.</p>
+<p>Using the per-hop positives and negatives we collected when training the retriever, the model is trained to output high
+scores for positive sentences, and low scores for negative sentences, using a cross-entropy loss. Note that we don’t use
+the gold sentences from our dataset yet; all sentences that come from a positive passage are considered positives.</p>
+
+<h4 id="stage-2"><a aria-hidden="true" tabindex="-1" href="#stage-2"><span class="icon icon-link"></span></a>Stage 2</h4>
+<p>After looking at all passages and scoring the sentences within, the top 9 fact sentences are sent to the second stage.</p>
+<p>The stage 2 condenser looks at all of the facts at once. Like in the previous stage, each fact is prepended with a
+special token and scored. The loss used this time is a linear combination of binary cross entropy loss for each
+individual fact, and cross entropy loss for each positive fact against all negatives. This both incentivizes all
+positive facts to be scored higher than negatives and causes “better” positive facts to be scored higher.</p>
+<p>All facts that have a positive score after this step are added to the context. If there are still hops left, this
+context is added to the query, creating the context for the next hop. Otherwise, the query and context are sent to the
+reader.</p>
+
+<h3 id="reader"><a aria-hidden="true" tabindex="-1" href="#reader"><span class="icon icon-link"></span></a>Reader</h3>
+<p>The reader is the final stage of Baleen, and frankly, the least interesting. The authors were focused on improving the
+retrieval aspect of multi-hop fact verification, so the reader is trained in the same way as prior approaches for a fair
+comparison. For claim verificiation, it outputs whether or not the claim was supported based on the query and retrieved
+facts. Like with the condensers, the reader is implemented with an ELECTRA model.</p>
+
+<h2 id="conclusion"><a aria-hidden="true" tabindex="-1" href="#conclusion"><span class="icon icon-link"></span></a>Conclusion</h2>
+<p>Baleen makes a number of interesting contributions to the field of multi-hop question answering:</p>
+<ul><li>By using focused late interaction instead of full ColBERT interaction, documents only have to match against certain
+parts of the query and context, allowing different kinds of “queries” to be generated within a single hop.</li>
+<li>Latent hop ordering identifies which documents should be retrieved on which hop, mitigating the need to add hop
+labels to dataset items.</li>
+<li>Finally, the 2-stage condenser architecture reduces the multiple passages retrieved into a set of 1-4 sentences to be
+appended to the query, allowing the system to scale to multiple hops. Because of how condensing is done, facts are
+filtered based on both their context within a passage and their relationship to each other.</li></ul>
+<p>Given the number of tasks where at least one part can be described as “give me the most helpful documents for this
+query”, combined with its high performance, I’m thinking we’ll be seeing Baleen integrated into more systems in the
+future. I feel like one of the big obstacles at this point is that there are so many ideas in this paper to wrap your
+head around, you end up going with something else just for the simplicity. If that’s the case, hopefully this post helps!</p>
+
+
+
+	<aside class="post-footer"><h2>Posted in:</h2>
+			<ul><li><a href="/blog/category/papers/">papers</a>
+					</li><li><a href="/blog/category/question-answering/">question-answering</a>
+					</li><li><a href="/blog/category/late-interaction/">late-interaction</a>
+					</li></ul></aside></article></main>
+	<footer><p>Created with <a href="https://github.com/josh-collinsworth/sveltekit-blog-starter">sveltekit-blog-starter.</a></p>
+	<p>©2024 - Ben Giacalone</p></footer></div>
+
+
+			
+			<script>
+				{
+					__sveltekit_fqrqe3 = {
+						base: new URL("..", location).pathname.slice(0, -1),
+						env: {}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					const data = [null,null];
+
+					Promise.all([
+						import("../_app/immutable/entry/start.29b3eeb7.js"),
+						import("../_app/immutable/entry/app.80cd2071.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 5],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
